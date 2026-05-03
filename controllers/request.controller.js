@@ -31,7 +31,8 @@ export const createRequest = async (req, res) => {
 
     const allUsers = await User.find().sort({ createdAt: -1 });
 
-    let baseUrl = "http://localhost:5173";
+    // let baseUrl = "http://localhost:5173";
+    let baseUrl = "https://https://mktops-approval.netlify.app";
     // for (let user of allUsers) {
     //   if (user?.role === "tmg") {
     //     await sendMail({
@@ -57,34 +58,28 @@ export const createRequest = async (req, res) => {
     //   }
     // }
 
-    const emailPromises = allUsers.map((user) => {
-      if (user?.role === "tmg") {
-        return sendMail({
-          to: user.email,
-          subject: "New Request - TMG Approval Needed",
-          html: getRequestMailTemplate({
-            name: user?.name,
-            role: "TMG",
-            link: `${baseUrl}/my-request-tmg`,
-          }),
-        });
-      }
+    //    const emailPromises = allUsers
+    //   .filter((user) => ["tmg", "finance"].includes(user.role))
+    //   .map((user) =>
+    //     sendMail({
+    //       to: user.email,
+    //       subject:
+    //         user.role === "tmg"
+    //           ? "New Request - TMG Approval Needed"
+    //           : "New Request - Finance Approval Needed",
+    //       html: getRequestMailTemplate({
+    //         name: user?.name,
+    //         role: user.role === "tmg" ? "TMG" : "Finance",
+    //         link:
+    //           user.role === "tmg"
+    //             ? `${baseUrl}/my-request-tmg`
+    //             : `${baseUrl}/my-request-finance`,
+    //       }),
+    //     }),
+    //   );
 
-      if (user?.role === "finance") {
-        return sendMail({
-          to: user.email,
-          subject: "New Request - Finance Approval Needed",
-          html: getRequestMailTemplate({
-            name: user?.name,
-            role: "Finance",
-            link: `${baseUrl}/my-request-finance`,
-          }),
-        });
-      }
-    });
+    // await Promise.all(emailPromises);
 
-    // 🔥 Send all at once
-    await Promise.all(emailPromises);
     return res.status(201).json({
       success: true,
       data: result,
