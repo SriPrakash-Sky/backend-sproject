@@ -24,6 +24,7 @@ export const createRequest = async (req, res) => {
       end_date: end.toDate(),
       no_of_days: data.no_of_days,
       remarks: data.remarks || "",
+      attachment: req.file ? req.file.filename : "",
     };
 
     const result = await Request.create(payload);

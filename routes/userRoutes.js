@@ -23,6 +23,7 @@ import {
   login,
   updateUser,
 } from "../controllers/user.controller.js";
+import { upload } from "../config/multer.js";
 
 const userRouter = express.Router();
 
@@ -36,7 +37,7 @@ const userRouter = express.Router();
 // userRouter.post("/update-finance-user", updateFinanceUser);
 // userRouter.post("/delete-finance-user", deleteFinanceUser);
 
-userRouter.post("/create-request", createRequest);
+userRouter.post("/create-request", upload.single("file"), createRequest);
 userRouter.get("/get-request", getRequests);
 userRouter.post("/update-request", updateRequests);
 

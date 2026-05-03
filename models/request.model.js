@@ -88,6 +88,10 @@ const requestSchema = new mongoose.Schema(
       type: String,
       default: "",
     },
+    attachment: {
+      type: String,
+      default: "",
+    },
   },
   {
     timestamps: true,

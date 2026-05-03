@@ -12,15 +12,17 @@ dotenv.config();
 const app = express();
 connectDB();
 
+// app.use(cors());
 app.use(
   cors({
     origin: "*", // later restrict to your Netlify URL
   }),
 );
+// app.options("*", cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(helmet());
-
+app.use("/uploads", express.static("uploads"));
 app.use(
   rateLimit({
     windowMs: 15 * 60 * 1000,
