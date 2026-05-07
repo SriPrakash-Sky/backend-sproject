@@ -38,7 +38,7 @@ const userRouter = express.Router();
 // userRouter.post("/delete-finance-user", deleteFinanceUser);
 
 userRouter.post("/create-request", upload.single("file"), createRequest);
-userRouter.get("/get-request", getRequests);
+userRouter.post("/get-request", getRequests);
 userRouter.post("/update-request", updateRequests);
 
 userRouter.post("/create-user", createUser);
