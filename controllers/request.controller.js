@@ -3,6 +3,7 @@ import User from "../models/users.model.js";
 import FinanceUser from "../models/financeUser.model.js";
 import dayjs from "dayjs";
 import { getRequestMailTemplate, sendMail } from "../config/mail.js";
+import mongoose from "mongoose";
 
 export const createRequest = async (req, res) => {
   try {
@@ -12,6 +13,7 @@ export const createRequest = async (req, res) => {
     const end = dayjs(data.end_date);
 
     const payload = {
+      user_id: data.user_id,
       emp_id: data.emp_id,
       name: data.name,
       current_client: data.current_client,
@@ -100,6 +102,8 @@ export const getRequests = async (req, res) => {
       filter,
       tmg_filter,
       finance_filter,
+      user_id,
+      role,
     } = req.body;
 
     page = Number(page);
@@ -108,6 +112,9 @@ export const getRequests = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let match = {};
+    if (role === "request") {
+      match["user_id"] = new mongoose.Types.ObjectId(user_id);
+    }
 
     if (search) {
       match.$or = [
@@ -252,6 +259,24 @@ export const updateRequests = async (req, res) => {
     return res.status(200).json({
       success: true,
       data: updatedRequest,
+    });
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      message: err.message,
+    });
+  }
+};
+
+export const deleteRequests = async (req, res) => {
+  try {
+    let { id } = req.body;
+
+    await Request.findByIdAndDelete(id);
+
+    return res.status(200).json({
+      success: true,
+      data: [],
     });
   } catch (err) {
     return res.status(500).json({

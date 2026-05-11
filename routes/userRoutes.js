@@ -13,6 +13,7 @@ import {
 } from "../controllers/financeUser.controller.js";
 import {
   createRequest,
+  deleteRequests,
   getRequests,
   updateRequests,
 } from "../controllers/request.controller.js";
@@ -24,6 +25,12 @@ import {
   updateUser,
 } from "../controllers/user.controller.js";
 import { upload } from "../config/multer.js";
+import {
+  createClient,
+  deleteClient,
+  getClients,
+  updateClient,
+} from "../controllers/client.controller.js";
 
 const userRouter = express.Router();
 
@@ -40,11 +47,17 @@ const userRouter = express.Router();
 userRouter.post("/create-request", upload.single("file"), createRequest);
 userRouter.post("/get-request", getRequests);
 userRouter.post("/update-request", updateRequests);
+userRouter.post("/delete-request", deleteRequests);
 
 userRouter.post("/create-user", createUser);
 userRouter.post("/get-user", getUsers);
 userRouter.post("/delete-user", deleteUser);
 userRouter.post("/update-user", updateUser);
+
+userRouter.post("/create-client", createClient);
+userRouter.get("/get-client", getClients);
+userRouter.post("/delete-client", deleteClient);
+userRouter.post("/update-client", updateClient);
 
 userRouter.post("/login", login);
 

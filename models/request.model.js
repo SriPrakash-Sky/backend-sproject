@@ -2,6 +2,12 @@ import mongoose from "mongoose";
 
 const requestSchema = new mongoose.Schema(
   {
+    user_id: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+      index: true,
+    },
     emp_id: {
       type: String,
       required: true,
