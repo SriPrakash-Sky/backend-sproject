@@ -72,3 +72,12 @@ export const deleteClient = async (req, res) => {
     });
   }
 };
+
+// PORT=5000
+// # MONGO_URI=mongodb+srv://SriPrakashA:NlXRkNJwozO6g1eT@cluster0.p6lpodd.mongodb.net/quiz-app
+// MONGO_URI=mongodb://localhost:27017/sproject
+// JWT_SECRET=12345SPRO
+// MODE=dev
+// BASE_URL=http://localhost:5173
+// # SWAGGER_HOST=quiz.skyraantech.com/backend
+// # SWAGGER_SCHEME=https
