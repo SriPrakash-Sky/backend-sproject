@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const requestSchema = new mongoose.Schema(
+const bgvSchema = new mongoose.Schema(
   {
     user_id: {
       type: mongoose.Schema.Types.ObjectId,
@@ -8,7 +8,7 @@ const requestSchema = new mongoose.Schema(
       required: true,
       index: true,
     },
-    emp_id: {
+    gcid: {
       type: String,
       required: true,
       trim: true,
@@ -21,89 +21,53 @@ const requestSchema = new mongoose.Schema(
       trim: true,
     },
 
-    current_client: {
+    client: {
       type: String,
       required: true,
       trim: true,
     },
 
-    current_project: {
+    project_name: {
       type: String,
       required: true,
       trim: true,
     },
-
-    proposed_client: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    proposed_project: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    project_type: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    resource_type: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    shore: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-
-    start_date: {
+    bgv_initiated_date: {
       type: Date,
       required: true,
     },
 
-    end_date: {
+    bgv_completed_date: {
       type: Date,
       required: true,
     },
 
-    no_of_days: {
-      type: Number,
-    },
-
-    remarks: {
+    justification: {
       type: String,
       default: "",
     },
+    email_id: {
+      type: String,
+      required: true,
+      trim: true,
+    },
 
-    tmg_status: {
+    approval_status: {
       type: Number,
       enum: [0, 1, 2],
       default: 0,
     },
-    tmg_reason: {
-      type: String,
-      default: "",
-    },
 
-    finance_status: {
+    ml_status: {
       type: Number,
       enum: [0, 1, 2],
       default: 0,
     },
-    finance_reason: {
+    ml_reason: {
       type: String,
       default: "",
     },
     over_all_status: {
-      type: String,
-      default: "",
-    },
-    attachment: {
       type: String,
       default: "",
     },
@@ -114,4 +78,4 @@ const requestSchema = new mongoose.Schema(
   },
 );
 
-export default mongoose.model("Request", requestSchema);
+export default mongoose.model("Bgv", bgvSchema);

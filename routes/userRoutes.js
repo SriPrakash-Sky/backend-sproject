@@ -31,6 +31,12 @@ import {
   getClients,
   updateClient,
 } from "../controllers/client.controller.js";
+import {
+  createBgv,
+  deleteBgvRequests,
+  getBgvs,
+  updateBgvRequests,
+} from "../controllers/bgv.controller.js";
 
 const userRouter = express.Router();
 
@@ -48,6 +54,11 @@ userRouter.post("/create-request", upload.single("file"), createRequest);
 userRouter.post("/get-request", getRequests);
 userRouter.post("/update-request", updateRequests);
 userRouter.post("/delete-request", deleteRequests);
+
+userRouter.post("/create-bgv", createBgv);
+userRouter.post("/get-bgv", getBgvs);
+userRouter.post("/update-bgv-request", updateBgvRequests);
+userRouter.post("/delete-bgv-request", deleteBgvRequests);
 
 userRouter.post("/create-user", createUser);
 userRouter.post("/get-user", getUsers);

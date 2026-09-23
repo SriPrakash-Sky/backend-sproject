@@ -25,8 +25,25 @@ export const createUser = async (req, res) => {
 
 export const getUsers = async (req, res) => {
   try {
-    let { role } = req.body;
-    const users = await User.find({ role }).sort({ createdAt: -1 });
+    let { role, search } = req.body;
+
+    let _search = {};
+
+    if (role && role !== "all") {
+      _search["role"] = role;
+    }
+
+    if (search && search.length > 2) {
+      _search["$or"] = [
+        {
+          email: { $regex: search, $options: "i" },
+        },
+        {
+          name: { $regex: search, $options: "i" },
+        },
+      ];
+    }
+    const users = await User.find(_search).lean().sort({ createdAt: -1 });
 
     res.json({
       success: true,

@@ -1,37 +1,32 @@
 import Request from "../models/request.model.js";
+import BGV from "../models/bgv.model.js";
 import User from "../models/users.model.js";
 import FinanceUser from "../models/financeUser.model.js";
 import dayjs from "dayjs";
 import { getRequestMailTemplate, sendMail } from "../config/mail.js";
 import mongoose from "mongoose";
 
-export const createRequest = async (req, res) => {
+export const createBgv = async (req, res) => {
   try {
     const data = req.body;
     console.log(data);
-    const start = dayjs(data.start_date);
-    const end = dayjs(data.end_date);
+    const initiated_date = dayjs(data.bgv_initiated_date);
+    const completed_date = dayjs(data.bgv_completed_date);
 
     const payload = {
       user_id: data.user_id,
-      emp_id: data.emp_id,
+      gcid: data.gcid,
       name: data.name,
-      current_client: data.current_client,
-      current_project: data.current_project,
-      proposed_client: data.proposed_client,
-      proposed_project: data.proposed_project,
-      project_type: data.project_type,
-      resource_type: data.resource_type,
-      shore: data.shore,
-      start_date: start.toDate(),
-      end_date: end.toDate(),
-      no_of_days: data.no_of_days,
-      remarks: data.remarks || "",
+      project_name: data.project_name,
+      client: data.client,
+      email_id: data.email_id,
+      justification: data.justification || "",
+      bgv_initiated_date: initiated_date.toDate(),
+      bgv_completed_date: completed_date.toDate(),
       over_all_status: "Open",
-      attachment: req.file ? req.file.filename : "",
     };
 
-    const result = await Request.create(payload);
+    const result = await BGV.create(payload);
 
     const allUsers = await User.find().sort({ createdAt: -1 });
 
@@ -87,25 +82,16 @@ export const createRequest = async (req, res) => {
     return res.status(201).json({
       success: true,
       data: result,
-      message: "Request created successfully",
+      message: "BGV created successfully",
     });
   } catch (err) {
     res.status(500).json({ message: err.message });
   }
 };
 
-export const getRequests = async (req, res) => {
+export const getBgvs = async (req, res) => {
   try {
-    let {
-      page = 1,
-      limit = 10,
-      search = "",
-      filter,
-      tmg_filter,
-      finance_filter,
-      user_id,
-      role,
-    } = req.body;
+    let { page = 1, limit = 10, search = "", filter, user_id, role } = req.body;
 
     page = Number(page);
     limit = Number(limit);
@@ -113,14 +99,14 @@ export const getRequests = async (req, res) => {
     const skip = (page - 1) * limit;
 
     let match = {};
-    if (role === "request") {
+    if (role === "market_leader") {
       match["user_id"] = new mongoose.Types.ObjectId(user_id);
     }
 
     if (search) {
       match.$or = [
         {
-          emp_id: {
+          gcid: {
             $regex: search,
             $options: "i",
           },
@@ -134,20 +120,29 @@ export const getRequests = async (req, res) => {
       ];
     }
     if (filter) {
-      match["over_all_status"] = filter;
-    }
-    if (tmg_filter) {
-      match["tmg_status"] = tmg_filter - 1;
-    }
-    if (finance_filter) {
-      match["finance_status"] = finance_filter - 1;
+      match["ml_status"] = filter === 3 ? 0 : filter;
     }
 
-    const result = await Request.aggregate([
+    const result = await BGV.aggregate([
       {
         $match: match,
       },
+      {
+        $lookup: {
+          from: "users",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user",
+        },
+      },
 
+      // Convert user array into object
+      {
+        $unwind: {
+          path: "$user",
+          preserveNullAndEmptyArrays: true,
+        },
+      },
       {
         $facet: {
           data: [
@@ -171,7 +166,7 @@ export const getRequests = async (req, res) => {
       },
     ]);
 
-    const requests = result[0]?.data || [];
+    const bgvData = result[0]?.data || [];
     const total = result[0]?.totalCount[0]?.count || 0;
 
     const totalPages = Math.ceil(total / limit);
@@ -187,7 +182,7 @@ export const getRequests = async (req, res) => {
 
     return res.json({
       success: true,
-      data: requests,
+      data: bgvData,
       pagination,
     });
   } catch (err) {
@@ -220,40 +215,17 @@ export const getRequests = async (req, res) => {
 //   }
 // };
 
-export const updateRequests = async (req, res) => {
+export const updateBgvRequests = async (req, res) => {
   try {
-    let { id, role, status, reason } = req.body;
+    let { id, status, reason } = req.body;
 
-    let payload = {};
+    let payload = { ml_status: status, ml_reason: reason };
+    console.log(payload);
+    await BGV.findByIdAndUpdate(id, payload);
 
-    if (role === "tmg") {
-      payload["tmg_status"] = status;
-      payload["tmg_reason"] = reason;
-    } else if (role === "finance") {
-      payload["finance_status"] = status;
-      payload["finance_reason"] = reason;
-    }
+    const updatedRequest = await BGV.findById(id);
 
-    await Request.findByIdAndUpdate(id, payload);
-
-    const updatedRequest = await Request.findById(id);
-
-    const tmg = updatedRequest?.tmg_status;
-    const finance = updatedRequest?.finance_status;
-
-    let overall_status = "";
-
-    if (tmg === 0 && finance === 0) {
-      overall_status = "Open";
-    } else if ((tmg === 0 && finance !== 0) || (tmg !== 0 && finance === 0)) {
-      overall_status = "Inprogress";
-    } else if ((tmg === 1 && finance === 2) || (tmg === 2 && finance === 1)) {
-      overall_status = "Rejected";
-    } else if (tmg === 1 && finance === 1) {
-      overall_status = "Closed";
-    }
-
-    updatedRequest.over_all_status = overall_status;
+    updatedRequest.over_all_status = "Closed";
 
     await updatedRequest.save();
 
@@ -269,11 +241,11 @@ export const updateRequests = async (req, res) => {
   }
 };
 
-export const deleteRequests = async (req, res) => {
+export const deleteBgvRequests = async (req, res) => {
   try {
     let { id } = req.body;
 
-    await Request.findByIdAndDelete(id);
+    await BGV.findByIdAndDelete(id);
 
     return res.status(200).json({
       success: true,
